@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STG Backup Explorer</title>
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- Main Style sheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header bar -->
+    <header>
+        <div class="brand">
+            <span class="brand-icon">📂</span>
+            <h1>STG Backup Explorer</h1>
+        </div>
+        <div class="header-actions">
+            <div class="file-input-wrapper">
+                <button class="btn btn-secondary">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    Upload New Backup
+                </button>
+                <input type="file" id="header-file-input" accept=".json">
+            </div>
+        </div>
+    </header>
+
+    <!-- Empty State Dashboard (Shown on Load) -->
+    <div id="empty-state" class="dashboard-empty">
+        <div class="dropzone" id="dropzone">
+            <div class="dropzone-icon">📥</div>
+            <h2>Import STG Backup File</h2>
+            <p>Drag and drop your Simple Tab Groups JSON backup file here, or click to browse files from your computer.</p>
+            <div class="file-input-wrapper" style="pointer-events: none;">
+                <button class="btn btn-primary" style="pointer-events: auto;">Choose Backup JSON</button>
+                <input type="file" id="file-input" accept=".json">
+            </div>
+        </div>
+        <div class="or-divider">Offline & Secure</div>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Your backup data is parsed locally in your web browser. No files or information are ever uploaded to any server.</p>
+    </div>
+
+    <!-- Main Application View (Hidden until loaded) -->
+    <main id="main-app" class="hidden">
+        <!-- Sidebar: Group List & Search -->
+        <section class="sidebar">
+            <div class="sidebar-header">
+                <!-- Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-val" id="total-groups">0</div>
+                        <div class="stat-label">Groups</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="total-tabs">0</div>
+                        <div class="stat-label">Total Tabs</div>
+                    </div>
+                </div>
+                <!-- Search Filter -->
+                <div class="sidebar-search">
+                    <svg class="search-icon-svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                    <input type="text" id="search-input" class="search-input" placeholder="Search tabs or groups...">
+                </div>
+            </div>
+            <!-- Groups List -->
+            <div class="groups-list" id="groups-list">
+                <!-- JavaScript generated group items go here -->
+            </div>
+        </section>
+
+        <!-- Main View: Group Tabs -->
+        <section class="content">
+            <!-- Header for active group -->
+            <div class="content-header">
+                <div class="group-header-info">
+                    <div class="group-header-icon" id="group-header-icon">
+                        <!-- Favicon / Initial -->
+                    </div>
+                    <div>
+                        <h2 class="group-header-title" id="group-header-title">No Group Selected</h2>
+                        <div class="group-header-meta" id="group-header-meta">Select a tab group from the sidebar</div>
+                    </div>
+                </div>
+                <div class="content-actions">
+                    <button class="btn btn-outline" id="open-all-btn">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        Open All Tabs
+                    </button>
+                    <!-- Export Dropdown -->
+                    <div class="export-menu">
+                        <button class="btn btn-primary" id="export-btn">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Export Group
+                        </button>
+                        <div class="dropdown-list" id="export-dropdown">
+                            <button class="dropdown-item" id="export-html">
+                                <span>🌐</span> HTML Bookmarks (.html)
+                            </button>
+                            <button class="dropdown-item" id="export-markdown">
+                                <span>📝</span> Markdown Links (.md)
+                            </button>
+                            <button class="dropdown-item" id="export-text">
+                                <span>📄</span> Plain URLs List (.txt)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs list container -->
+            <div class="tabs-container">
+                <div class="tabs-list" id="tabs-list">
+                    <!-- Tab cards list -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- App JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "stg-backup-explorer",
+  "version": "1.0.0",
+  "description": "Local web application to view and export tab groups from a Simple Tab Groups backup file.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js"
+  },
+  "author": "Antigravity",
+  "license": "MPL-2.0"
+}
