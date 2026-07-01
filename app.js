@@ -31,6 +31,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Toast container
     const toastContainer = document.getElementById('toast-container');
 
+    // Settings elements
+    const settingsToggleBtn = document.getElementById('settings-toggle-btn');
+    const settingsContainer = document.getElementById('settings-container');
+    const settingsMobileBackBtn = document.getElementById('settings-mobile-back-btn');
+    const saveSettingsBtn = document.getElementById('save-settings-btn');
+    const settingsTabBtns = document.querySelectorAll('.settings-tab-btn');
+    const settingsTabContents = document.querySelectorAll('.settings-tab-content');
+    const settingVersionVal = document.getElementById('setting-version-val');
+    const settingLastBackupVal = document.getElementById('setting-last-backup-val');
+    const hotkeysListContainer = document.getElementById('hotkeys-list-container');
+    const containersListContainer = document.getElementById('containers-list-container');
+
     // App state
     let backupData = null;
     let activeGroupId = null;
@@ -43,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSearch();
     setupKeyboardShortcuts();
     setupMobileView();
+    setupSettings();
 
     // 1. Drag and Drop handlers
     function setupDragAndDrop() {
@@ -123,6 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
         mainApp.classList.remove('hidden');
         mainApp.classList.add('show-sidebar');
         mainApp.classList.remove('show-content');
+        
+        // Show Settings button
+        settingsToggleBtn.classList.remove('hidden');
 
         // Reset state
         activeGroupId = null;
@@ -210,6 +226,8 @@ document.addEventListener('DOMContentLoaded', () => {
             mainApp.classList.add('show-content');
             mainApp.classList.remove('show-sidebar');
         }
+        
+        hideSettingsView();
         
         // Update active class in sidebar
         const items = groupsList.querySelectorAll('.group-item');
@@ -512,5 +530,241 @@ document.addEventListener('DOMContentLoaded', () => {
                 toast.remove();
             }, 300);
         }, 3000);
+    }
+
+    // 13. Settings view methods
+    function setupSettings() {
+        // Toggle Settings view
+        settingsToggleBtn.addEventListener('click', () => {
+            if (settingsContainer.classList.contains('hidden')) {
+                showSettingsView();
+                // If mobile view, switch display to content
+                mainApp.classList.add('show-content');
+                mainApp.classList.remove('show-sidebar');
+            } else {
+                // Go back to active group if exists
+                if (activeGroupId !== null) {
+                    selectGroup(activeGroupId);
+                } else if (backupData && backupData.groups.length > 0) {
+                    selectGroup(backupData.groups[0].id);
+                }
+            }
+        });
+
+        // Mobile back button for settings
+        if (settingsMobileBackBtn) {
+            settingsMobileBackBtn.addEventListener('click', () => {
+                mainApp.classList.remove('show-content');
+                mainApp.classList.add('show-sidebar');
+            });
+        }
+
+        // Settings internal tab switching
+        settingsTabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.dataset.tab;
+                
+                settingsTabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                settingsTabContents.forEach(content => {
+                    if (content.id === `settings-tab-${targetTab}`) {
+                        content.classList.add('active');
+                    } else {
+                        content.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Bind auto-save on inputs change
+        const inputs = settingsContainer.querySelectorAll('.setting-input, input[type=checkbox]');
+        inputs.forEach(input => {
+            const eventType = input.tagName === 'SELECT' || input.type === 'checkbox' ? 'change' : 'input';
+            input.addEventListener(eventType, (e) => {
+                const key = e.target.dataset.key;
+                if (!key || !backupData) return;
+                
+                let value;
+                if (e.target.type === 'checkbox') {
+                    value = e.target.checked;
+                } else if (e.target.type === 'number') {
+                    value = parseInt(e.target.value) || 0;
+                } else {
+                    value = e.target.value;
+                }
+                
+                backupData[key] = value;
+                showToast('Setting auto-saved to current backup session!', 'success');
+            });
+        });
+
+        // Save & Download Backup Button
+        saveSettingsBtn.addEventListener('click', () => {
+            if (!backupData) return;
+            
+            try {
+                const jsonString = JSON.stringify(backupData, null, 4);
+                const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `stg_backup_updated_${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast('Updated STG Backup downloaded successfully!', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Failed to generate backup JSON: ' + err.message, 'error');
+            }
+        });
+    }
+
+    function showSettingsView() {
+        if (!backupData) return;
+
+        // Hide active group content header and tabs
+        const contentHeader = document.querySelector('.content-header');
+        const tabsContainer = document.querySelector('.tabs-container');
+        if (contentHeader) contentHeader.classList.add('hidden');
+        if (tabsContainer) tabsContainer.classList.add('hidden');
+
+        // Show settings container
+        settingsContainer.classList.remove('hidden');
+        
+        // Add active style to Settings button
+        settingsToggleBtn.classList.add('btn-primary');
+        settingsToggleBtn.classList.remove('btn-secondary');
+
+        // Remove active styling from sidebar group items
+        const groupItems = groupsList.querySelectorAll('.group-item');
+        groupItems.forEach(item => item.classList.remove('active'));
+
+        // Load values into settings form
+        loadSettingsValues();
+    }
+
+    function hideSettingsView() {
+        // Show active group content header and tabs
+        const contentHeader = document.querySelector('.content-header');
+        const tabsContainer = document.querySelector('.tabs-container');
+        if (contentHeader) contentHeader.classList.remove('hidden');
+        if (tabsContainer) tabsContainer.classList.remove('hidden');
+
+        // Hide settings container
+        settingsContainer.classList.add('hidden');
+
+        // Remove active style from Settings button
+        settingsToggleBtn.classList.remove('btn-primary');
+        settingsToggleBtn.classList.add('btn-secondary');
+    }
+
+    function loadSettingsValues() {
+        if (!backupData) return;
+
+        // Populate Version
+        if (settingVersionVal) {
+            settingVersionVal.textContent = backupData.version || 'Unknown';
+        }
+
+        // Populate Last Backup Timestamp
+        if (settingLastBackupVal) {
+            if (backupData.autoBackupLastBackupTimeStamp) {
+                const date = new Date(backupData.autoBackupLastBackupTimeStamp * 1000);
+                settingLastBackupVal.textContent = date.toLocaleString();
+            } else {
+                settingLastBackupVal.textContent = 'Never';
+            }
+        }
+
+        // Loop over inputs and checkboxes
+        const inputs = settingsContainer.querySelectorAll('.setting-input, input[type=checkbox]');
+        inputs.forEach(input => {
+            const key = input.dataset.key;
+            if (!key) return;
+
+            const val = backupData[key];
+            if (input.type === 'checkbox') {
+                input.checked = !!val;
+            } else {
+                input.value = val !== undefined ? val : '';
+            }
+        });
+
+        // Generate list view contents
+        renderHotkeysList();
+        renderContainersList();
+    }
+
+    function renderHotkeysList() {
+        if (!hotkeysListContainer) return;
+        hotkeysListContainer.innerHTML = '';
+
+        const hotkeys = backupData.hotkeys || [];
+        if (hotkeys.length === 0) {
+            hotkeysListContainer.innerHTML = '<div class="no-results-icon" style="font-size: 1.5rem; text-align: center; color: var(--text-muted); padding: 1rem;">No custom hotkeys defined</div>';
+            return;
+        }
+
+        const actionLabels = {
+            'load-next-group': 'Load Next Tab Group',
+            'load-prev-group': 'Load Previous Tab Group',
+            'open-stg-menu': 'Open STG Extension Menu',
+            'create-new-group': 'Create New Tab Group',
+            'manage-groups': 'Open Manage Groups View'
+        };
+
+        hotkeys.forEach(hk => {
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            
+            const label = actionLabels[hk.action] || hk.action.replace(/-/g, ' ');
+            const capitalizedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+            
+            item.innerHTML = `
+                <div class="setting-label-block">
+                    <span class="list-item-title">${capitalizedLabel}</span>
+                    <span class="list-item-subtitle">${hk.action}</span>
+                </div>
+                <kbd class="hotkey-badge">${hk.value}</kbd>
+            `;
+            hotkeysListContainer.appendChild(item);
+        });
+    }
+
+    function renderContainersList() {
+        if (!containersListContainer) return;
+        containersListContainer.innerHTML = '';
+
+        const containersObj = backupData.containers || {};
+        const containerIds = Object.keys(containersObj);
+
+        if (containerIds.length === 0) {
+            containersListContainer.innerHTML = '<div class="no-results-icon" style="font-size: 1.5rem; text-align: center; color: var(--text-muted); padding: 1rem;">No multi-account containers defined</div>';
+            return;
+        }
+
+        containerIds.forEach(id => {
+            const container = containersObj[id];
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            
+            const colorCode = container.colorCode || '#6366f1';
+            
+            item.innerHTML = `
+                <div class="container-indicator">
+                    <span class="container-color-dot" style="color: ${colorCode}; background-color: ${colorCode}"></span>
+                    <div class="setting-label-block">
+                        <span class="list-item-title">${escapeHtml(container.name)}</span>
+                        <span class="list-item-subtitle">${id}</span>
+                    </div>
+                </div>
+                <span class="badge-version" style="background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); text-transform: capitalize;">${container.color} (${container.icon})</span>
+            `;
+            containersListContainer.appendChild(item);
+        });
     }
 });

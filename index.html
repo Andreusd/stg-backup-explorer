@@ -19,6 +19,10 @@
             <h1>STG Backup Explorer</h1>
         </div>
         <div class="header-actions">
+            <button class="btn btn-secondary hidden" id="settings-toggle-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <span class="btn-text">Settings</span>
+            </button>
             <div class="file-input-wrapper">
                 <button class="btn btn-secondary">
                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
@@ -118,6 +122,378 @@
             <div class="tabs-container">
                 <div class="tabs-list" id="tabs-list">
                     <!-- Tab cards list -->
+                </div>
+            </div>
+
+            <!-- Settings container -->
+            <div class="settings-container hidden" id="settings-container">
+                <div class="settings-header">
+                    <div class="settings-header-info">
+                        <button class="btn-icon mobile-back-btn" id="settings-mobile-back-btn" aria-label="Back to Groups">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        </button>
+                        <span class="settings-header-icon">⚙️</span>
+                        <div>
+                            <h2 class="settings-header-title">Backup Settings</h2>
+                            <div class="settings-header-meta">View and edit configuration settings for this backup</div>
+                        </div>
+                    </div>
+                    <div class="settings-actions">
+                        <button class="btn btn-primary" id="save-settings-btn">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            <span class="btn-text">Download Backup (.json)</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="settings-body">
+                    <div class="settings-tabs">
+                        <button class="settings-tab-btn active" data-tab="general">General</button>
+                        <button class="settings-tab-btn" data-tab="dialogs">Dialogs & Menus</button>
+                        <button class="settings-tab-btn" data-tab="backup">Auto Backup</button>
+                        <button class="settings-tab-btn" data-tab="hotkeys">Hotkeys</button>
+                        <button class="settings-tab-btn" data-tab="containers">Containers</button>
+                    </div>
+                    
+                    <!-- General Settings -->
+                    <div class="settings-tab-content active" id="settings-tab-general">
+                        <div class="settings-grid">
+                            <div class="setting-card">
+                                <h3 class="settings-section-title">📦 Extension Information</h3>
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Simple Tab Groups Version</span>
+                                        <span class="setting-desc">The version of the extension that generated this backup</span>
+                                    </div>
+                                    <span class="badge-version" id="setting-version-val">N/A</span>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-card">
+                                <h3 class="settings-section-title">🎨 Appearance</h3>
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Theme</span>
+                                        <span class="setting-desc">Preferred visual style</span>
+                                    </div>
+                                    <select class="setting-input" data-key="theme" id="setting-theme">
+                                        <option value="auto">System Default (Auto)</option>
+                                        <option value="dark">Dark</option>
+                                        <option value="light">Light</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-card">
+                                <h3 class="settings-section-title">⚡ Navigation & Popups</h3>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Close Popup After Change Group</span>
+                                        <span class="setting-desc">Close the STG panel after switching groups</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="closePopupAfterChangeGroup" id="setting-closePopupAfterChangeGroup">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Close Popup After Select Tab</span>
+                                        <span class="setting-desc">Close the STG panel after clicking a tab</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="closePopupAfterSelectTab" id="setting-closePopupAfterSelectTab">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Open Group After Change</span>
+                                        <span class="setting-desc">Auto open group in active window on selection</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="openGroupAfterChange" id="setting-openGroupAfterChange">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-card">
+                                <h3 class="settings-section-title">📂 Groups Setup</h3>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Always Ask New Group Name</span>
+                                        <span class="setting-desc">Prompt for a name when creating a new group</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="alwaysAskNewGroupName" id="setting-alwaysAskNewGroupName">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Create New Group When Open New Window</span>
+                                        <span class="setting-desc">Create a blank group for every new browser window</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="createNewGroupWhenOpenNewWindow" id="setting-createNewGroupWhenOpenNewWindow">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Open Manage Groups In Tab</span>
+                                        <span class="setting-desc">Open group manager in a new tab instead of popup</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="openManageGroupsInTab" id="setting-openManageGroupsInTab">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-card">
+                                <h3 class="settings-section-title">🖥️ Interface & Sizing</h3>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Full Popup Width</span>
+                                        <span class="setting-desc">Force the STG panel to take maximum width</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="fullPopupWidth" id="setting-fullPopupWidth">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-row-vertical">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Temporary Container Title Prefix</span>
+                                        <span class="setting-desc">Name prefix used for temporary multi-containers</span>
+                                    </div>
+                                    <input type="text" class="setting-input" data-key="temporaryContainerTitle" id="setting-temporaryContainerTitle">
+                                </div>
+                                
+                                <div class="setting-row-vertical">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Default Bookmarks Parent Folder ID</span>
+                                        <span class="setting-desc">Folder ID where auto-bookmarks will be saved</span>
+                                    </div>
+                                    <input type="text" class="setting-input" data-key="defaultBookmarksParent" id="setting-defaultBookmarksParent">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dialogs & Menus -->
+                    <div class="settings-tab-content" id="settings-tab-dialogs">
+                        <div class="settings-grid">
+                            <div class="setting-card">
+                                <h3 class="settings-section-title">❓ Confirmations</h3>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Confirm Group Archiving</span>
+                                        <span class="setting-desc">Show confirmation dialog before archiving a group</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="showConfirmDialogBeforeGroupArchiving" id="setting-showConfirmDialogBeforeGroupArchiving">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Confirm Group Delete</span>
+                                        <span class="setting-desc">Show confirmation dialog before permanently deleting a group</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="showConfirmDialogBeforeGroupDelete" id="setting-showConfirmDialogBeforeGroupDelete">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Show Notification After Group Delete</span>
+                                        <span class="setting-desc">Display a toast message when group is deleted</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="showNotificationAfterGroupDelete" id="setting-showNotificationAfterGroupDelete">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-card">
+                                <h3 class="settings-section-title">🖱️ Context Menus & Tooltips</h3>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Show Context Menu On Tabs</span>
+                                        <span class="setting-desc">Integrate STG actions in Firefox browser tab context menus</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="showContextMenuOnTabs" id="setting-showContextMenuOnTabs">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Show Context Menu On Links</span>
+                                        <span class="setting-desc">Allow opening page links directly into specific groups</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="showContextMenuOnLinks" id="setting-showContextMenuOnLinks">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-card">
+                                <h3 class="settings-section-title">📊 Group Manager Views</h3>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Extend Popup with Active Tabs</span>
+                                        <span class="setting-desc">Display active tab titles inside the pop-up list</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="showExtendGroupsPopupWithActiveTabs" id="setting-showExtendGroupsPopupWithActiveTabs">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Show Tabs With Thumbnails</span>
+                                        <span class="setting-desc">Display visual preview cards in the Group Manager tab</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="showTabsWithThumbnailsInManageGroups" id="setting-showTabsWithThumbnailsInManageGroups">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Auto Backup -->
+                    <div class="settings-tab-content" id="settings-tab-backup">
+                        <div class="settings-grid">
+                            <div class="setting-card">
+                                <h3 class="settings-section-title">🔄 Auto Backup Behavior</h3>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Auto Backup Enabled</span>
+                                        <span class="setting-desc">Enable regular automated backups to disk</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="autoBackupEnable" id="setting-autoBackupEnable">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Backup Interval</span>
+                                        <span class="setting-desc">How frequently backups should run</span>
+                                    </div>
+                                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                        <input type="number" class="setting-input" style="width: 80px;" data-key="autoBackupIntervalValue" id="setting-autoBackupIntervalValue" min="1">
+                                        <select class="setting-input" style="width: 100px;" data-key="autoBackupIntervalKey" id="setting-autoBackupIntervalKey">
+                                            <option value="minutes">Minutes</option>
+                                            <option value="hours">Hours</option>
+                                            <option value="days">Days</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Backup by Day Index</span>
+                                        <span class="setting-desc">Incorporate day index in backup file naming for rotation</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="autoBackupByDayIndex" id="setting-autoBackupByDayIndex">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Last Backup Run Time</span>
+                                        <span class="setting-desc">The time when the extension last completed a backup</span>
+                                    </div>
+                                    <span class="badge-version" style="background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2);" id="setting-last-backup-val">N/A</span>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-card">
+                                <h3 class="settings-section-title">📂 Storage & Metadata</h3>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Include Tab Thumbnails</span>
+                                        <span class="setting-desc">Include graphical snapshots of tabs in backup (larger files)</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="autoBackupIncludeTabThumbnails" id="setting-autoBackupIncludeTabThumbnails">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Include Tab Favicons</span>
+                                        <span class="setting-desc">Store base64 website icons inside the backup file</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" data-key="autoBackupIncludeTabFavIcons" id="setting-autoBackupIncludeTabFavIcons">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="setting-row-vertical">
+                                    <div class="setting-label-block">
+                                        <span class="setting-label">Backup Folder Name</span>
+                                        <span class="setting-desc">The destination directory for browser-saved backup files</span>
+                                    </div>
+                                    <input type="text" class="setting-input" data-key="autoBackupFolderName" id="setting-autoBackupFolderName">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hotkeys -->
+                    <div class="settings-tab-content" id="settings-tab-hotkeys">
+                        <div class="setting-card">
+                            <h3 class="settings-section-title">⌨️ Extension Hotkeys</h3>
+                            <p class="setting-desc" style="margin-bottom: 1rem;">These keyboard shortcuts are saved in the backup for group navigation.</p>
+                            <div class="list-container" id="hotkeys-list-container">
+                                <!-- Generated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Containers -->
+                    <div class="settings-tab-content" id="settings-tab-containers">
+                        <div class="setting-card">
+                            <h3 class="settings-section-title">🦊 Firefox Multi-Account Containers</h3>
+                            <p class="setting-desc" style="margin-bottom: 1rem;">Multi-Account containers mapped in this backup profile.</p>
+                            <div class="list-container" id="containers-list-container">
+                                <!-- Generated by JS -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
