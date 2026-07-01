@@ -22,7 +22,7 @@
             <div class="file-input-wrapper">
                 <button class="btn btn-secondary">
                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                    Upload New Backup
+                    <span class="btn-text">Upload New Backup</span>
                 </button>
                 <input type="file" id="header-file-input" accept=".json">
             </div>
@@ -77,6 +77,9 @@
             <!-- Header for active group -->
             <div class="content-header">
                 <div class="group-header-info">
+                    <button class="btn-icon mobile-back-btn" id="mobile-back-btn" aria-label="Back to Groups">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    </button>
                     <div class="group-header-icon" id="group-header-icon">
                         <!-- Favicon / Initial -->
                     </div>
@@ -88,13 +91,13 @@
                 <div class="content-actions">
                     <button class="btn btn-outline" id="open-all-btn">
                         <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                        Open All Tabs
+                        <span class="btn-text">Open All Tabs</span>
                     </button>
                     <!-- Export Dropdown -->
                     <div class="export-menu">
                         <button class="btn btn-primary" id="export-btn">
                             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                            Export Group
+                            <span class="btn-text">Export Group</span>
                         </button>
                         <div class="dropdown-list" id="export-dropdown">
                             <button class="dropdown-item" id="export-html">

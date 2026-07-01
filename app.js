@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const groupHeaderMeta = document.getElementById('group-header-meta');
     const tabsList = document.getElementById('tabs-list');
     const openAllBtn = document.getElementById('open-all-btn');
+    const mobileBackBtn = document.getElementById('mobile-back-btn');
     
     // Export elements
     const exportBtn = document.getElementById('export-btn');
@@ -41,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDropdowns();
     setupSearch();
     setupKeyboardShortcuts();
+    setupMobileView();
 
     // 1. Drag and Drop handlers
     function setupDragAndDrop() {
@@ -119,6 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Toggle view states
         emptyState.classList.add('hidden');
         mainApp.classList.remove('hidden');
+        mainApp.classList.add('show-sidebar');
+        mainApp.classList.remove('show-content');
 
         // Reset state
         activeGroupId = null;
@@ -193,14 +197,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="group-count">${count}</span>
             `;
 
-            item.addEventListener('click', () => selectGroup(group.id));
+            item.addEventListener('click', () => selectGroup(group.id, true));
             groupsList.appendChild(item);
         });
-    }
+     }
 
     // 6. Select Group
-    function selectGroup(groupId) {
+    function selectGroup(groupId, switchMobileView = false) {
         activeGroupId = groupId;
+
+        if (switchMobileView) {
+            mainApp.classList.add('show-content');
+            mainApp.classList.remove('show-sidebar');
+        }
         
         // Update active class in sidebar
         const items = groupsList.querySelectorAll('.group-item');
@@ -458,6 +467,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+    }
+
+    // 12. Setup Mobile View navigation
+    function setupMobileView() {
+        if (mobileBackBtn) {
+            mobileBackBtn.addEventListener('click', () => {
+                mainApp.classList.remove('show-content');
+                mainApp.classList.add('show-sidebar');
+            });
+        }
     }
 
     // Helpers
